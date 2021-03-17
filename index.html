@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapbox-gl-js tutorial</title>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    
+    <!-- cercador de llocs -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.min.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.css' type='text/css' />
+    <style>
+
+        body { margin:0; padding:0; background: linear-gradient(90deg,rgb(137, 233, 178),rgb(255, 255, 255),rgb(199, 184, 137)); }
+        /* #map { position:  } */
+        h1 {
+        font-family: fantasy;
+        text-align: center;
+        color: rgb(22, 14, 16);
+        font-size: 50px;
+        margin-top: 20px;
+        }
+        /* coordenades ratoli */
+        #coordenadas {     
+            display: block;
+            position: relative;
+            margin: 0px auto;
+            width: 40%;
+            padding: 5px;
+            border: none;
+            border-radius: 7px;
+            font-size: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            color: #000;
+            background: #D6EAF8;
+        }
+    </style>
+</head>
+<body>
+    <style>
+        #menu {
+            position: absolute;
+            background: #efefef;
+            padding: 10px;
+            font-family: 'Open Sans', sans-serif;
+        }
+    </style>
+        <h1>Mapa creat a partir de la llibreria Mapbox GL JS</h1>
+		<div id='map' style='width: 800px; height: 600px;  margin: auto;'></div>
+        
+        <div id="menu">
+            <input id="satellite-v9" type="radio" name="rtoggle" value="satellite" >
+            <!-- See a list of Mapbox-hosted public styles at https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
+            <label for="satellite-v9">satellite</label>
+            <input id="light-v10" type="radio" name="rtoggle" value="light">
+            <label for="light-v10">light</label>
+            <input id="dark-v10" type="radio" name="rtoggle" value="dark">
+            <label for="dark-v10">dark</label>
+            
+            <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" checked="checked">
+            <label for="outdoors-v11">outdoors</label>
+        </div>
+        <pre id='coordenadas'></pre><!-- cooerdenades ratoli -->
+        <script>
+            mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zZXBhbnNhYmF0ZSIsImEiOiJja21kejl5bHUxdzhoMnBwaDg0YjJ1bDRxIn0.fVRAXWvmIKHZ-4igiQQeRg';
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [2.168, 41.381],  
+                zoom: 11
+            });
+            var layerList = document.getElementById('menu');
+            var inputs = layerList.getElementsByTagName('input');
+            
+            function switchLayer(layer) {
+                var layerId = layer.target.id;
+                map.setStyle('mapbox://styles/mapbox/' + layerId);
+            }
+            
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].onclick = switchLayer;
+            }
+            //polilínia geojson
+            map.on('load', function () {
+                map.addSource('route', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'Feature',
+                        'properties': {},
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': [
+                                [2.186871 , 41.391410 ],
+                                [2.186698 , 41.4032331 ],
+                                [2.1495725 , 41.3753037 ],
+                                [2.1360101 ,41.3860441 ]
+                            
+                            ]
+                    }
+                }
+                });
+                map.addLayer({
+                    'id': 'route',
+                    'type': 'line',
+                    'source': 'route',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': '#888',
+                        'line-width': 6
+                    }
+                });
+            });
+            //funcionalitats
+            //cercador de llocs
+            map.addControl(new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken
+            }));
+            //controls de navegació
+            //vista pantalla completa
+            //control de localització de l'usuari
+            map.addControl(new mapboxgl.NavigationControl());
+            map.addControl(new mapboxgl.FullscreenControl());
+            map.addControl(new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            }));
+            //coordenades ratolí
+            map.on('mousemove', function (e) {
+            document.getElementById('coordenadas').innerHTML =
+                JSON.stringify(e.lngLat);
+        });
+</script>
+	
+</body>
+</html>
