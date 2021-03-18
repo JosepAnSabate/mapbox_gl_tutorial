@@ -47,9 +47,14 @@
             padding: 10px;
             font-family: 'Open Sans', sans-serif;
         }
+        .mapboxgl-popup {
+            max-width: 400px;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        }
     </style>
         <h1>Mapa creat a partir de la llibreria Mapbox GL JS</h1>
-		<div id='map' style='width: 800px; height: 600px;  margin: auto;'></div>
+		<p style="font-family: fantasy; text-align: center; font-size: 20px;"> Per a desplegar el popup feu clic la Teatre Llire.</p>
+        <div id='map' style='width: 900px; height: 550px;  margin: auto;'></div>
         
         <div id="menu">
             <input id="satellite-v9" type="radio" name="rtoggle" value="satellite" >
@@ -72,6 +77,68 @@
                 center: [2.168, 41.381],  
                 zoom: 11
             });
+            //popup
+            map.on('load', function () {
+                map.addSource('places', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'FeatureCollection',
+                            'features': [
+                                {
+                                    'type': 'Feature',
+                                    'properties': {
+                                        'description':
+                                            '<strong>Teatre Lliure</strong><p><a href="https://www.teatreromea.cat/ca/tickets/" target="_blank" title="Opens in a new window">Entra a la web</a> per a consultar les diferents actuacions </p>',
+                                        'icon': 'theatre'
+                                        },
+                                    'geometry': {
+                                        'type': 'Point',
+                                        'coordinates': [2.15714900, 41.370755]
+                                    }
+                                }
+                            ]
+                    }
+                });
+                // Add a layer showing the places.
+                map.addLayer({
+                    'id': 'places',
+                    'type': 'symbol',
+                    'source': 'places',
+                    'layout': {
+                        'icon-image': '{icon}-15',
+                        'icon-allow-overlap': true
+                       }
+                });
+ 
+            // When a click event occurs on a feature in the places layer, open a popup at the
+            // location of the feature, with description HTML from its properties.
+            map.on('click', 'places', function (e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var description = e.features[0].properties.description;
+ 
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+ 
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(map);
+            });
+ 
+            // Change the cursor to a pointer when the mouse is over the places layer.
+            map.on('mouseenter', 'places', function () {
+            map.getCanvas().style.cursor = 'pointer';
+            });
+ 
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', 'places', function () {
+            map.getCanvas().style.cursor = '';
+             });
+        });
             var layerList = document.getElementById('menu');
             var inputs = layerList.getElementsByTagName('input');
             
@@ -93,10 +160,11 @@
                         'geometry': {
                             'type': 'LineString',
                             'coordinates': [
-                                [2.186871 , 41.391410 ],
-                                [2.186698 , 41.4032331 ],
-                                [2.1495725 , 41.3753037 ],
-                                [2.1360101 ,41.3860441 ]
+                                [2.157879 , 41.392736 ],
+                                [2.157013 , 41.372822 ],
+                                [2.1512440 , 41.376286 ],
+                                [2.157013 , 41.372822 ],
+                                [2.163071 , 41.376178]
                             
                             ]
                     }
